@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>APavan_Diagrama de Interação de Pilar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #050e1a;
+    --bg2:       #061525;
+    --bg3:       #0a2040;
+    --border:    #0d2b45;
+    --border2:   #1e4a6e;
+    --cyan:      #00e5ff;
+    --cyan2:     #4fc3f7;
+    --cyan3:     #7ecbea;
+    --cyan4:     #5a8ca8;
+    --cyan5:     #3a7a9c;
+    --text:      #cce8f4;
+    --text2:     #e0f4ff;
+    --accent:    #007acc;
+    --gold:      #f59e0b;
+    --gold2:     #fbbf24;
+    --font:      'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  }
+
+  html, body {
+    height: 100%; background: var(--bg);
+    color: var(--text); font-family: var(--font);
+    font-size: 13px; line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px;
+    background: linear-gradient(135deg, #071828 0%, #0a2040 100%);
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-sub   { font-size: 9px; letter-spacing: .3em; color: var(--cyan2); text-transform: uppercase; margin-bottom: 4px; }
+  .header-title { font-size: 18px; font-weight: 700; color: var(--text2); letter-spacing: -.02em; }
+  .header-desc  { font-size: 10px; color: var(--cyan4); margin-top: 2px; }
+  .header-right { text-align: right; font-size: 10px; color: var(--cyan5); line-height: 1.7; }
+
+  /* ── LAYOUT ── */
+  .layout { display: flex; height: calc(100vh - 68px); overflow: hidden; }
+
+  /* ── SIDEBAR ── */
+  aside {
+    width: 260px; min-width: 260px;
+    background: var(--bg2); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 18px 14px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+  aside::-webkit-scrollbar { width: 4px; }
+  aside::-webkit-scrollbar-track { background: var(--bg2); }
+  aside::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  .section-label {
+    font-size: 9px; letter-spacing: .2em; color: var(--cyan);
+    text-transform: uppercase; margin-bottom: 10px; margin-top: 14px;
+  }
+  .section-label:first-child { margin-top: 0; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+
+  .field { margin-bottom: 9px; }
+  .field label { display: block; font-size: 10px; color: var(--cyan3); margin-bottom: 3px; letter-spacing: .04em; }
+  .field-row { display: flex; align-items: center; gap: 6px; }
+  .field input[type=number] {
+    width: 90px; padding: 4px 8px;
+    background: #0a1f35; border: 1px solid var(--border2);
+    color: var(--text2); border-radius: 4px;
+    font-size: 13px; font-family: var(--font);
+    transition: border-color .15s;
+  }
+  .field input[type=number]:focus { outline: none; border-color: var(--cyan); }
+  .field .unit { font-size: 10px; color: var(--cyan2); }
+
+  .dim-row { display: flex; gap: 8px; margin-bottom: 9px; }
+  .dim-row .field { flex: 1; }
+  .dim-row .field input { width: 100%; }
+
+  /* Bar matrix */
+  .bar-hint { font-size: 10px; color: var(--cyan4); margin-bottom: 7px; }
+  #barGrid { display: inline-flex; flex-direction: column; gap: 4px; margin-bottom: 14px; }
+  .bar-row { display: flex; gap: 4px; }
+  .bar-btn {
+    width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+    border: 1.5px solid var(--border2); background: #0a1f35;
+    transition: all .12s;
+  }
+  .bar-btn.active { border-color: var(--gold); background: #f59e0b28; }
+  .bar-btn:hover { border-color: var(--cyan); }
+
+  /* Calc button */
+  #btnCalc {
+    width: 100%; padding: 12px; border-radius: 6px;
+    background: linear-gradient(135deg, #005a99, var(--accent));
+    border: none; color: #fff; font-size: 13px; font-weight: 700;
+    cursor: pointer; letter-spacing: .06em; font-family: var(--font);
+    box-shadow: 0 0 14px #007acc44; transition: box-shadow .2s;
+    margin-top: 4px;
+  }
+  #btnCalc:hover { box-shadow: 0 0 24px #00e5ff66; }
+
+  /* ── MAIN ── */
+  main { flex: 1; overflow-y: auto; padding: 22px 26px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 2px; margin-bottom: 0; }
+  .tab-btn {
+    padding: 7px 18px; border-radius: 4px 4px 0 0;
+    border: 1px solid var(--border);
+    background: transparent; color: var(--cyan4);
+    font-size: 10px; letter-spacing: .1em; cursor: pointer;
+    font-family: var(--font); text-transform: uppercase;
+    transition: all .15s;
+  }
+  .tab-btn.active {
+    background: var(--bg3); border-color: var(--accent);
+    border-bottom-color: var(--bg3); color: var(--cyan);
+  }
+  .tab-panel {
+    display: none; border: 1px solid var(--border);
+    border-top: none; border-radius: 0 4px 4px 4px;
+    padding: 20px; background: var(--bg3);
+  }
+  .tab-panel.active { display: block; }
+
+  /* Empty state */
+  .empty {
+    background: var(--bg2); border: 1px dashed var(--border2);
+    border-radius: 8px; padding: 50px 20px; text-align: center; color: var(--cyan5);
+  }
+  .empty-icon { font-size: 38px; margin-bottom: 12px; }
+  .empty p { font-size: 12px; }
+  .empty small { font-size: 10px; color: #2a5a7c; margin-top: 4px; display: block; }
+
+  /* KPI cards */
+  .kpi-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+  .kpi {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 8px 14px; min-width: 130px;
+  }
+  .kpi-label { font-size: 9px; color: var(--cyan2); letter-spacing: .1em; text-transform: uppercase; margin-bottom: 2px; }
+  .kpi-val   { font-size: 15px; color: var(--cyan); font-weight: 700; }
+
+  /* Chart container */
+  .chart-wrap {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px; overflow: auto;
+  }
+  #chartSvg { display: block; width: 100%; max-width: 680px; }
+
+  .chart-note { margin-top: 8px; font-size: 10px; color: var(--cyan5); }
+
+  /* Results table */
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  thead tr { background: var(--bg3); border-bottom: 2px solid var(--accent); }
+  th { padding: 8px 14px; text-align: left; color: var(--cyan2); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; font-weight: 600; }
+  td { padding: 7px 14px; border-bottom: 1px solid var(--border); }
+  tr:nth-child(even) td { background: #071c35; }
+  .bar-vis { height: 6px; border-radius: 2px; background: #00e5ff22; border-right: 2px solid var(--cyan); }
+
+  /* Section view */
+  .sec-wrap {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 20px; display: inline-block;
+  }
+  #secSvg { display: block; }
+  .sec-info { margin-top: 12px; font-size: 11px; color: var(--cyan4); line-height: 1.8; }
+
+  /* Summary box */
+  .summary-box {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 18px; margin-top: 16px;
+    font-size: 11px; line-height: 2;
+  }
+  .summary-box .s-title { font-size: 9px; letter-spacing: .15em; color: var(--cyan); text-transform: uppercase; margin-bottom: 6px; }
+  .hl { color: var(--cyan); }
+  .hl2 { color: var(--gold); }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed; display: none; pointer-events: none;
+    background: #0a2040ee; border: 1px solid var(--accent);
+    border-radius: 5px; padding: 7px 12px; font-size: 11px;
+    color: var(--text2); font-family: var(--font); z-index: 999;
+    box-shadow: 0 4px 16px #00000066;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="header-sub">Engenharia Estrutural</div>
+    <div class="header-title">APavan_DIAGRAMA DE INTERAÇÃO DE PILAR</div>
+    <div class="header-desc">NBR 6118 / ACI 318 — Compressão + Flexão Uniaxial</div>
+  </div>
+  <div class="header-right">
+    <div>φPn vs φMn</div>
+    <div>Seção Retangular</div>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="section-label">▸ Geometria do Pilar</div>
+    <div class="field">
+      <label>hz — Altura (direção x)</label>
+      <div class="field-row">
+        <input type="number" id="inp_hz" value="60" min="10" max="500" step="1">
+        <span class="unit">cm</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>hy — Largura (direção y)</label>
+      <div class="field-row">
+        <input type="number" id="inp_hy" value="50" min="10" max="500" step="1">
+        <span class="unit">cm</span>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+    <div class="section-label">▸ Propriedades dos Materiais</div>
+    <div class="field">
+      <label>fck — Resistência do concreto</label>
+      <div class="field-row">
+        <input type="number" id="inp_fck" value="250" min="100" max="1200" step="10">
+        <span class="unit">kgf/cm²</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>fyk — Escoamento do aço</label>
+      <div class="field-row">
+        <input type="number" id="inp_fyk" value="5000" min="2000" max="8000" step="100">
+        <span class="unit">kgf/cm²</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>φ — Fator de resistência (ACI)</label>
+      <div class="field-row">
+        <input type="number" id="inp_phi" value="0.65" min="0.5" max="0.9" step="0.01">
+      </div>
+    </div>
+
+    <hr class="divider"/>
+    <div class="section-label">▸ Armadura</div>
+    <div class="field">
+      <label>Cobrimento</label>
+      <div class="field-row">
+        <input type="number" id="inp_cob" value="3" min="1" max="10" step="0.5">
+        <span class="unit">cm</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Diâmetro da barra</label>
+      <div class="field-row">
+        <input type="number" id="inp_diam" value="12.5" min="4" max="40" step="0.5">
+        <span class="unit">mm</span>
+      </div>
+    </div>
+
+    <div class="dim-row">
+      <div class="field">
+        <label>Linhas (hz)</label>
+        <input type="number" id="inp_nrows" value="5" min="2" max="10" step="1">
+      </div>
+      <div class="field">
+        <label>Colunas (hy)</label>
+        <input type="number" id="inp_ncols" value="5" min="2" max="10" step="1">
+      </div>
+    </div>
+
+    <div class="bar-hint">Disposição das barras (clique para ativar/desativar):</div>
+    <div id="barGrid"></div>
+
+    <button id="btnCalc">▶&nbsp; CALCULAR</button>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="diagram">Diagrama</button>
+      <button class="tab-btn" data-tab="dados">Resultados</button>
+      <button class="tab-btn" data-tab="secao">Seção</button>
+    </div>
+
+    <!-- DIAGRAM TAB -->
+    <div class="tab-panel active" id="tab-diagram">
+      <div id="diagramContent">
+        <div class="empty">
+          <div class="empty-icon">⬡</div>
+          <p>Configure os parâmetros e clique em CALCULAR</p>
+          <small>O diagrama de interação φPn–φMn será exibido aqui</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- DADOS TAB -->
+    <div class="tab-panel" id="tab-dados">
+      <div id="dadosContent">
+        <p style="color:var(--cyan5);font-size:12px;">Calcule primeiro para ver os resultados.</p>
+      </div>
+    </div>
+
+    <!-- SEÇÃO TAB -->
+    <div class="tab-panel" id="tab-secao">
+      <p style="font-size:12px;color:var(--cyan3);margin-bottom:14px;">Seção Transversal do Pilar</p>
+      <div id="secaoContent">
+        <div class="sec-wrap">
+          <svg id="secSvg" width="200" height="200"></svg>
+          <div class="sec-info" id="secInfo"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="tooltip"></div>
+
+<script>
+// ================================================================
+// STATE
+// ================================================================
+let barMatrix = [];      // [nRows][nCols] = 0|1
+let lastResult = null;
+
+// ================================================================
+// INIT — build bar grid on load
+// ================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  rebuildBarMatrix();
+  renderSection();
+
+  document.getElementById('inp_nrows').addEventListener('change', () => { rebuildBarMatrix(); renderSection(); });
+  document.getElementById('inp_ncols').addEventListener('change', () => { rebuildBarMatrix(); renderSection(); });
+  document.getElementById('inp_hz').addEventListener('input', renderSection);
+  document.getElementById('inp_hy').addEventListener('input', renderSection);
+  document.getElementById('inp_cob').addEventListener('input', renderSection);
+  document.getElementById('inp_diam').addEventListener('input', renderSection);
+
+  document.getElementById('btnCalc').addEventListener('click', calculate);
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+});
+
+// ================================================================
+// BAR MATRIX
+// ================================================================
+function rebuildBarMatrix() {
+  const nr = Math.max(2, Math.min(10, parseInt(document.getElementById('inp_nrows').value) || 5));
+  const nc = Math.max(2, Math.min(10, parseInt(document.getElementById('inp_ncols').value) || 5));
+  barMatrix = [];
+  for (let i = 0; i < nr; i++) {
+    const row = [];
+    for (let j = 0; j < nc; j++) {
+      row.push((i === 0 || i === nr-1 || j === 0 || j === nc-1) ? 1 : 0);
+    }
+    barMatrix.push(row);
+  }
+  renderBarGrid();
+  renderSection();
+}
+
+function renderBarGrid() {
+  const grid = document.getElementById('barGrid');
+  grid.innerHTML = '';
+  barMatrix.forEach((row, i) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'bar-row';
+    row.forEach((v, j) => {
+      const btn = document.createElement('button');
+      btn.className = 'bar-btn' + (v ? ' active' : '');
+      btn.title = `Linha ${i+1}, Col ${j+1}`;
+      btn.addEventListener('click', () => {
+        barMatrix[i][j] = barMatrix[i][j] ? 0 : 1;
+        btn.classList.toggle('active');
+        renderSection();
+      });
+      rowEl.appendChild(btn);
+    });
+    grid.appendChild(rowEl);
+  });
+}
+
+// ================================================================
+// SECTION DRAWING
+// ================================================================
+function renderSection() {
+  const hz   = parseFloat(document.getElementById('inp_hz').value)   || 60;
+  const hy   = parseFloat(document.getElementById('inp_hy').value)   || 50;
+  const cob  = parseFloat(document.getElementById('inp_cob').value)  || 3;
+  const diam = parseFloat(document.getElementById('inp_diam').value) || 12.5; // mm
+
+  const nR = barMatrix.length;
+  const nC = barMatrix[0] ? barMatrix[0].length : 5;
+
+  const maxDim = Math.max(hz, hy);
+  const scale  = Math.min(180 / maxDim, 3.0);
+  const W = hz * scale;
+  const H = hy * scale;
+  const pad = 18;
+  const svgW = W + pad * 2;
+  const svgH = H + pad * 2;
+
+  const d1 = cob + diam / 10 / 2; // cm
+  const rBar = Math.max(2.5, diam / 10 * scale * 0.5);
+
+  const svg = document.getElementById('secSvg');
+  svg.setAttribute('width',  svgW);
+  svg.setAttribute('height', svgH);
+  svg.setAttribute('viewBox', `0 0 ${svgW} ${svgH}`);
+
+  let html = '';
+  // Concrete section
+  html += `<rect x="${pad}" y="${pad}" width="${W}" height="${H}" rx="2" fill="#0f2d4a" stroke="#00e5ff" stroke-width="1.5"/>`;
+
+  // Bars
+  for (let i = 0; i < nR; i++) {
+    for (let j = 0; j < nC; j++) {
+      if (!barMatrix[i] || !barMatrix[i][j]) continue;
+      const xRel = nC > 1 ? j / (nC - 1) : 0.5;
+      const yRel = nR > 1 ? i / (nR - 1) : 0.5;
+      const bx = pad + d1 * scale + xRel * (W - 2 * d1 * scale);
+      const by = pad + d1 * scale + yRel * (H - 2 * d1 * scale);
+      html += `<circle cx="${bx.toFixed(1)}" cy="${by.toFixed(1)}" r="${rBar}" fill="#f59e0b" stroke="#fbbf24" stroke-width="0.5"/>`;
+    }
+  }
+
+  // Dimension labels
+  html += `<text x="${pad + W/2}" y="${svgH - 3}" text-anchor="middle" fill="#7ecbea" font-size="9" font-family="monospace">hz = ${hz} cm</text>`;
+  html += `<text x="8" y="${pad + H/2}" text-anchor="middle" fill="#7ecbea" font-size="9" font-family="monospace" transform="rotate(-90, 8, ${pad + H/2})">hy = ${hy} cm</text>`;
+
+  svg.innerHTML = html;
+
+  // Info
+  const nBars = barMatrix.flat().filter(Boolean).length;
+  const Abarra = Math.PI * Math.pow(diam / 10 / 2, 2);
+  const Ast = nBars * Abarra;
+  const rho = (Ast / (hz * hy)) * 100;
+  document.getElementById('secInfo').innerHTML =
+    `<span style="color:var(--cyan3)">Seção:</span> <span style="color:var(--cyan)">${hz} × ${hy} cm</span><br>
+     <span style="color:var(--cyan3)">Barras:</span> <span style="color:var(--gold)">${nBars} × φ${diam}mm</span><br>
+     <span style="color:var(--cyan3)">Ast total:</span> <span style="color:var(--cyan)">${Ast.toFixed(3)} cm²</span><br>
+     <span style="color:var(--cyan3)">Taxa de armadura:</span> <span style="color:var(--cyan)">${rho.toFixed(2)}%</span><br>
+     <span style="color:var(--cyan3)">Cobrimento:</span> <span style="color:var(--cyan)">${cob} cm</span> | d₁ = ${d1.toFixed(3)} cm`;
+}
+
+// ================================================================
+// STRUCTURAL CALCULATION
+// ================================================================
+function getInputs() {
+  return {
+    hz:   parseFloat(document.getElementById('inp_hz').value)   || 60,
+    hy:   parseFloat(document.getElementById('inp_hy').value)   || 50,
+    fck:  parseFloat(document.getElementById('inp_fck').value)  || 250,
+    fyk:  parseFloat(document.getElementById('inp_fyk').value)  || 5000,
+    phi:  parseFloat(document.getElementById('inp_phi').value)  || 0.65,
+    cob:  parseFloat(document.getElementById('inp_cob').value)  || 3,
+    diam: parseFloat(document.getElementById('inp_diam').value) || 12.5, // mm
+  };
+}
+
+function calcDiagram() {
+  const { hz, hy, fck, fyk, phi, cob, diam } = getInputs();
+
+  // Material
+  const fcd   = fck / 1.4;
+  const fyd   = fyk / 1.15;
+  const ec    = 0.003;
+  const Es    = 2.1e6;             // kgf/cm²
+  const ey    = fyd / Es;
+  const beta1 = Math.max(0.65, Math.min(0.85, 1.05 - fcd / 1400));
+  const Ac    = hz * hy;
+
+  // Bar geometry
+  const nR  = barMatrix.length;
+  const nC  = barMatrix[0] ? barMatrix[0].length : 5;
+  const d1  = cob + diam / 10 / 2;  // cm
+  const sep = nR > 1 ? (hz - 2 * d1) / (nR - 1) : 0;
+  const dArr = [];
+  for (let i = 0; i < nR; i++) dArr.push(d1 + i * sep);
+
+  // Area per row (cm²)
+  const Abarra = Math.PI * Math.pow(diam / 10 / 2, 2);
+  const Asf = barMatrix.map(row => row.reduce((s, v) => s + v * Abarra, 0));
+  const Ast = Asf.reduce((s, v) => s + v, 0);
+
+  // Pure compression
+  const P0   = 0.85 * fcd * (Ac - Ast) + fyd * Ast;  // kgf
+  const phiP = phi * 0.80 * P0;                         // kgf
+
+  const dt = dArr[nR - 1]; // deepest bar row from compression edge
+
+  const points = [];
+  const STEPS = 300;
+
+  for (let step = 0; step <= STEPS; step++) {
+    // a goes from nearly hz (almost pure compression) down to near 0
+    const frac = step / STEPS;
+    const a = (1 - frac) * hz;
+
+    if (a < 0.01) {
+      // Pure tension point
+      const Pt = -fyd * Ast;
+      points.push({ phiPn: phi * Pt / 1000, phiMn: 0 });
+      break;
+    }
+
+    const c = a / beta1;
+
+    // Steel forces
+    let Pn_steel = 0, Mn_steel = 0;
+    for (let i = 0; i < nR; i++) {
+      if (Asf[i] === 0) continue;
+      const eps = ec * (c - dArr[i]) / c;
+      const sign = eps >= 0 ? 1 : -1;
+      const fsi  = sign * Math.min(Es * Math.abs(eps), fyd);
+      const F    = Asf[i] * fsi;
+      Pn_steel += F;
+      Mn_steel += F * (hz / 2 - dArr[i]);
+    }
+
+    // Concrete force
+    const Pn_conc = 0.85 * fcd * a * hy;
+    const Mn_conc = Pn_conc * (hz / 2 - a / 2);
+
+    const Pn = Pn_conc + Pn_steel;
+    const Mn = Mn_conc + Mn_steel;
+
+    // phi factor based on tensile strain in deepest bar
+    const eps_dt = ec * (dt - c) / c;
+    let phi_a = 0.65;
+    if (Math.abs(ey - 0.005) > 1e-9) {
+      phi_a = 0.65 + 0.25 * (Math.abs(eps_dt) - ey) / (0.005 - ey);
+    }
+    phi_a = Math.max(0.65, Math.min(0.90, phi_a));
+    const phiUse = Math.min(phi_a, phi);
+
+    const phiPn = Math.min(phiUse * Pn, phiP);  // cap at max
+    const phiMn = phiUse * Math.abs(Mn);
+
+    points.push({
+      phiPn: phiPn / 1000,        // tonnef
+      phiMn: phiMn / 1e5,         // tonnef·m  (kgf·cm / 1e5)
+      a, c,
+    });
+  }
+
+  return {
+    points,
+    P0:    P0 / 1000,
+    phiP:  phiP / 1000,
+    Ast, Asf, dArr, d1, sep,
+    rho:   (Ast / Ac) * 100,
+    fcd, fyd, ey, beta1,
+    hz, hy, phi,
+  };
+}
+
+// ================================================================
+// CALCULATE (main trigger)
+// ================================================================
+function calculate() {
+  lastResult = calcDiagram();
+  renderDiagram(lastResult);
+  renderDados(lastResult);
+  renderSection();
+}
+
+// ================================================================
+// CHART RENDERING
+// ================================================================
+function renderDiagram(r) {
+  const container = document.getElementById('diagramContent');
+
+  // Build KPIs
+  const kpis = [
+    { label: 'P₀ compressão pura', val: r.P0.toFixed(1) + ' tf' },
+    { label: 'φP máximo',          val: r.phiP.toFixed(1) + ' tf' },
+    { label: 'Ast total',          val: r.Ast.toFixed(3) + ' cm²' },
+    { label: 'ρ armadura',         val: r.rho.toFixed(2) + '%' },
+    { label: 'fcd',                val: r.fcd.toFixed(1) + ' kgf/cm²' },
+    { label: 'β₁',                 val: r.beta1.toFixed(3) },
+    { label: 'fyd',                val: r.fyd.toFixed(1) + ' kgf/cm²' },
+  ];
+
+  let kpiHtml = '<div class="kpi-row">';
+  kpis.forEach(k => {
+    kpiHtml += `<div class="kpi"><div class="kpi-label">${k.label}</div><div class="kpi-val">${k.val}</div></div>`;
+  });
+  kpiHtml += '</div>';
+
+  container.innerHTML = kpiHtml + '<div class="chart-wrap"><svg id="chartSvg"></svg></div><p class="chart-note">Momento horário (+) / Momento anti-horário (−) — Curva simétrica para seção simétrica</p>';
+
+  drawChart(r);
+}
+
+function drawChart(r) {
+  const pts = r.points;
+  if (!pts || pts.length === 0) return;
+
+  // Mirror for negative moment
+  const posPoints = pts.filter(p => isFinite(p.phiPn) && isFinite(p.phiMn));
+  const negPoints = posPoints.map(p => ({ phiPn: p.phiPn, phiMn: -p.phiMn }));
+
+  const allX = [...posPoints, ...negPoints].map(p => p.phiMn);
+  const allY = [...posPoints, ...negPoints].map(p => p.phiPn);
+
+  const xMin = Math.min(...allX);
+  const xMax = Math.max(...allX);
+  const yMin = Math.min(...allY);
+  const yMax = Math.max(...allY);
+
+  const xPad = (xMax - xMin) * 0.10 || 5;
+  const yPad = (yMax - yMin) * 0.08 || 20;
+  const xLo = xMin - xPad, xHi = xMax + xPad;
+  const yLo = yMin - yPad, yHi = yMax + yPad;
+
+  const SVG_W = 660, SVG_H = 460;
+  const PAD = { left: 64, right: 22, top: 24, bottom: 52 };
+  const PW = SVG_W - PAD.left - PAD.right;
+  const PH = SVG_H - PAD.top - PAD.bottom;
+
+  const tx = x => PAD.left + (x - xLo) / (xHi - xLo) * PW;
+  const ty = y => PAD.top  + (yHi - y) / (yHi - yLo) * PH;
+
+  const x0 = tx(0).toFixed(1);
+  const y0 = ty(0).toFixed(1);
+
+  // Grid
+  function niceStep(range, n) {
+    const raw = range / n;
+    const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    const cands = [1, 2, 2.5, 5, 10].map(v => v * mag);
+    return cands.find(v => v >= raw) || cands[cands.length - 1];
+  }
+  const xStep = niceStep(xHi - xLo, 8);
+  const yStep = niceStep(yHi - yLo, 8);
+
+  const xTicks = [], yTicks = [];
+  for (let v = Math.ceil(xLo / xStep) * xStep; v <= xHi + 1e-9; v += xStep)
+    xTicks.push(+v.toFixed(6));
+  for (let v = Math.ceil(yLo / yStep) * yStep; v <= yHi + 1e-9; v += yStep)
+    yTicks.push(+v.toFixed(6));
+
+  // Path builder
+  function makePath(points) {
+    return points.map((p, i) =>
+      `${i === 0 ? 'M' : 'L'}${tx(p.phiMn).toFixed(1)},${ty(p.phiPn).toFixed(1)}`
+    ).join(' ');
+  }
+
+  const posPath = makePath(posPoints);
+  const negPath = makePath(negPoints);
+  // Fill = pos + reversed neg
+  const fillPath = makePath(posPoints) + ' ' +
+    [...negPoints].reverse().map((p, i) =>
+      `L${tx(p.phiMn).toFixed(1)},${ty(p.phiPn).toFixed(1)}`
+    ).join(' ') + ' Z';
+
+  let html = `<defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#00e5ff" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#0066cc" stop-opacity="0.07"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+  // Grid lines
+  xTicks.forEach(v => {
+    html += `<line x1="${tx(v).toFixed(1)}" y1="${PAD.top}" x2="${tx(v).toFixed(1)}" y2="${PAD.top+PH}" stroke="#1e3a5a" stroke-width="0.5"/>`;
+  });
+  yTicks.forEach(v => {
+    html += `<line x1="${PAD.left}" y1="${ty(v).toFixed(1)}" x2="${PAD.left+PW}" y2="${ty(v).toFixed(1)}" stroke="#1e3a5a" stroke-width="0.5"/>`;
+  });
+
+  // Fill
+  html += `<path d="${fillPath}" fill="url(#g1)" stroke="none"/>`;
+
+  // Curves
+  html += `<path d="${posPath}" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" filter="url(#glow)"/>`;
+  html += `<path d="${negPath}" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" filter="url(#glow)"/>`;
+
+  // Axes
+  html += `<line x1="${PAD.left}" y1="${y0}" x2="${PAD.left+PW}" y2="${y0}" stroke="#4fc3f7" stroke-width="1.2"/>`;
+  html += `<line x1="${x0}" y1="${PAD.top}" x2="${x0}" y2="${PAD.top+PH}" stroke="#4fc3f7" stroke-width="1.2"/>`;
+
+  // Tick labels
+  xTicks.forEach(v => {
+    const lbl = Math.abs(v) < 1e-9 ? '0' : v % 1 === 0 ? v : v.toFixed(1);
+    html += `<text x="${tx(v).toFixed(1)}" y="${PAD.top+PH+18}" text-anchor="middle" fill="#7ecbea" font-size="10" font-family="monospace">${lbl}</text>`;
+  });
+  yTicks.forEach(v => {
+    const lbl = Math.abs(v) < 1e-9 ? '0' : v % 1 === 0 ? v : v.toFixed(1);
+    html += `<text x="${PAD.left-6}" y="${(ty(v)+4).toFixed(1)}" text-anchor="end" fill="#7ecbea" font-size="10" font-family="monospace">${lbl}</text>`;
+  });
+
+  // Axis titles
+  html += `<text x="${PAD.left+PW/2}" y="${SVG_H-6}" text-anchor="middle" fill="#4fc3f7" font-size="12" font-family="monospace">φMn  (tf·m)</text>`;
+  html += `<text x="14" y="${PAD.top+PH/2}" text-anchor="middle" fill="#4fc3f7" font-size="12" font-family="monospace" transform="rotate(-90,14,${PAD.top+PH/2})">φPn  (tf)</text>`;
+
+  // Marker at origin label
+  html += `<text x="${(+x0+4).toFixed(1)}" y="${(+y0-5).toFixed(1)}" fill="#4fc3f7" font-size="9" font-family="monospace">0</text>`;
+
+  const svg = document.getElementById('chartSvg');
+  svg.setAttribute('viewBox', `0 0 ${SVG_W} ${SVG_H}`);
+  svg.innerHTML = html;
+
+  // Hover tooltip
+  svg.addEventListener('mousemove', e => {
+    const rect = svg.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const scaleX = SVG_W / rect.width;
+    const scaleY = SVG_H / rect.height;
+    const svgX = mx * scaleX;
+    const svgY = my * scaleY;
+    const dataX = xLo + (svgX - PAD.left) / PW * (xHi - xLo);
+    const dataY = yHi - (svgY - PAD.top)  / PH * (yHi - yLo);
+
+    // Only inside plot
+    if (svgX < PAD.left || svgX > PAD.left+PW || svgY < PAD.top || svgY > PAD.top+PH) {
+      document.getElementById('tooltip').style.display = 'none';
+      return;
+    }
+
+    const tip = document.getElementById('tooltip');
+    tip.innerHTML = `φMn = <b>${dataX.toFixed(2)}</b> tf·m<br>φPn = <b>${dataY.toFixed(1)}</b> tf`;
+    tip.style.display = 'block';
+    tip.style.left = (e.clientX + 14) + 'px';
+    tip.style.top  = (e.clientY - 10) + 'px';
+  });
+  svg.addEventListener('mouseleave', () => {
+    document.getElementById('tooltip').style.display = 'none';
+  });
+}
+
+// ================================================================
+// RESULTS TABLE
+// ================================================================
+function renderDados(r) {
+  const maxAsf = Math.max(...r.Asf);
+  let html = `<p style="font-size:12px;color:var(--cyan3);margin-bottom:14px;">Tabela de Filas de Armadura</p>`;
+
+  html += `<table>
+    <thead><tr>
+      <th>Fila</th>
+      <th>d<sub>i</sub> (cm)</th>
+      <th>Asf (cm²)</th>
+      <th>n barras</th>
+      <th>Proporção</th>
+    </tr></thead><tbody>`;
+
+  r.dArr.forEach((d, i) => {
+    const nBars = barMatrix[i] ? barMatrix[i].reduce((s,v) => s+v, 0) : 0;
+    const barW  = maxAsf > 0 ? Math.max(4, r.Asf[i] / maxAsf * 140) : 4;
+    html += `<tr>
+      <td style="color:var(--cyan3)">${i+1}</td>
+      <td style="color:var(--cyan)">${d.toFixed(3)}</td>
+      <td style="color:var(--gold)">${r.Asf[i].toFixed(4)}</td>
+      <td style="color:var(--text)">${nBars}</td>
+      <td><div class="bar-vis" style="width:${barW}px"></div></td>
+    </tr>`;
+  });
+
+  html += `</tbody></table>`;
+
+  html += `<div class="summary-box">
+    <div class="s-title">Resumo do Cálculo</div>
+    d₁ = <span class="hl">${r.d1.toFixed(3)} cm</span> &nbsp;|&nbsp;
+    sep = <span class="hl">${r.sep.toFixed(3)} cm</span> &nbsp;|&nbsp;
+    Ast = <span class="hl2">${r.Ast.toFixed(3)} cm²</span> &nbsp;|&nbsp;
+    ρ = <span class="hl2">${r.rho.toFixed(2)}%</span><br>
+    fcd = <span class="hl">${r.fcd.toFixed(2)} kgf/cm²</span> &nbsp;|&nbsp;
+    fyd = <span class="hl">${r.fyd.toFixed(2)} kgf/cm²</span> &nbsp;|&nbsp;
+    β₁ = <span class="hl">${r.beta1.toFixed(3)}</span><br>
+    P₀ = <span class="hl2">${r.P0.toFixed(2)} tf</span> &nbsp;|&nbsp;
+    φP<sub>max</sub> = <span class="hl2">${r.phiP.toFixed(2)} tf</span>
+  </div>`;
+
+  // Point table sample
+  html += `<p style="font-size:12px;color:var(--cyan3);margin:18px 0 10px;">Pontos da Curva (seleção)</p>`;
+  html += `<table><thead><tr><th>a (cm)</th><th>c (cm)</th><th>φPn (tf)</th><th>φMn (tf·m)</th></tr></thead><tbody>`;
+
+  const sampleStep = Math.max(1, Math.floor(r.points.length / 15));
+  r.points.filter((_, i) => i % sampleStep === 0).forEach(p => {
+    const aStr = p.a !== undefined ? p.a.toFixed(2) : '—';
+    const cStr = p.c !== undefined ? (p.a / r.beta1).toFixed(2) : '—';
+    html += `<tr>
+      <td>${aStr}</td>
+      <td>${cStr}</td>
+      <td style="color:var(--cyan)">${p.phiPn.toFixed(2)}</td>
+      <td style="color:var(--gold)">${Math.abs(p.phiMn).toFixed(3)}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+
+  document.getElementById('dadosContent').innerHTML = html;
+}
+</script>
+</body>
+</html>
